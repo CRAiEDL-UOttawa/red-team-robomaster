@@ -33,25 +33,35 @@ def user_defined_Detect(r):
         gun_ctrl.fire_once()
         # remove marker from list if detected
         vmarker.pop(r)
+        return True
+    return False
         
 def move():
     r = random.randint(1,5)
+    found = False
+    
     chassis_ctrl.move_with_distance(90,2)
     gimbal_ctrl.yaw_ctrl(-90)
     chassis_ctrl.move_with_distance(0,1)
-    user_defined_Detect(r)
+    if not found:
+        found = user_defined_Detect(r)
     chassis_ctrl.move_with_distance(0,1.5)
-    user_defined_Detect(r)
+    if not found:
+        found = user_defined_Detect(r)
     gimbal_ctrl.yaw_ctrl(-180)
     chassis_ctrl.move_with_distance(-90,1)
-    user_defined_Detect(r)
+    if not found:
+        found = user_defined_Detect(r)
     chassis_ctrl.move_with_distance(-90,1)
-    user_defined_Detect(r)
+    if not found:
+        found = user_defined_Detect(r)
     gimbal_ctrl.yaw_ctrl(90)
     chassis_ctrl.move_with_distance(-180,1)
-    user_defined_Detect(r)
+    if not found:
+        found = user_defined_Detect(r)
     chassis_ctrl.move_with_distance(-180,1.5)
-    user_defined_Detect(r)
+    if not found:
+        found = user_defined_Detect(r)
     gimbal_ctrl.recenter()
         
 def start():
