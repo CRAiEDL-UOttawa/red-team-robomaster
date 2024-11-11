@@ -76,6 +76,7 @@ def start():
             time.sleep(1)
             media_ctrl.play_sound(rm_define.media_sound_solmization_2D)
             move()
+            print(len(vmarker))
     else:
         conclusion()
     
