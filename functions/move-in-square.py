@@ -1,0 +1,11 @@
+def start():
+    gimbal_ctrl.set_rotate_speed(60)
+    robot_ctrl.set_mode(rm_define.robot_mode_free)
+    chassis_ctrl.move_with_distance(90, 2)
+    gimbal_ctrl.yaw_ctrl(-90)
+    chassis_ctrl.move_with_distance(0, 2.5)
+    gimbal_ctrl.yaw_ctrl(-180)
+    chassis_ctrl.move_with_distance(-90, 2)
+    gimbal_ctrl.yaw_ctrl(90)
+    chassis_ctrl.move_with_distance(-180, 2.5)
+    gimbal_ctrl.recenter()
