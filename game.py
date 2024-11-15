@@ -31,17 +31,20 @@ def user_defined_Detect(r):
     print(condmapper.get(r))
     print(r)
     vision_ctrl.enable_detection(rm_define.vision_detection_marker)
-    vision_ctrl.set_marker_detection_distance(1)
+    vision_ctrl.set_marker_detection_distance(1.5)
     time.sleep(2)
     if vision_ctrl.check_condition(condmapper.get(r)):
         # change led to flash red
         led_ctrl.set_top_led(rm_define.armor_top_all, 255, 0, 0, rm_define.effect_flash)
         vision_ctrl.detect_marker_and_aim(random_marker) 
         gun_ctrl.fire_once()
+        gun_ctrl.fire_once()
+        gun_ctrl.fire_once()
         # remove marker from list if detected
         vmarker.pop(r)
         # remove r from picked
         picked.remove(r)
+        time.sleep(2)
         return True
     else:
         led_ctrl.set_top_led(rm_define.armor_top_all, 0, 255, 0, rm_define.effect_flash)
@@ -52,26 +55,28 @@ def move(direction):
     r = random.choice(picked)
     found = False
     if direction == "anti":
-        chassis_ctrl.move_with_distance(90,2.5)
+        chassis_ctrl.move_with_distance(90,2.7)
         gimbal_ctrl.yaw_ctrl(-90)
-        chassis_ctrl.move_with_distance(0,1.5)
+        chassis_ctrl.move_with_distance(0,1.9)
         if not found:
             found = user_defined_Detect(r)
-        chassis_ctrl.move_with_distance(0,1.5)
+        chassis_ctrl.move_with_distance(0,1.9)
         if not found:
             found = user_defined_Detect(r)
         gimbal_ctrl.yaw_ctrl(-180)
-        chassis_ctrl.move_with_distance(-90,1.5)
+        chassis_ctrl.move_with_distance(-90,1.35)
         if not found:
             found = user_defined_Detect(r)
-        chassis_ctrl.move_with_distance(-90,1.5)
+        chassis_ctrl.move_with_distance(-90,1.35)
         if not found:
             found = user_defined_Detect(r)
+        # increasing gimbal rotation speed 
+        gimbal_ctrl.set_rotate_speed(250)
         gimbal_ctrl.yaw_ctrl(90) # at this point, the gimbal moves all around 
-        chassis_ctrl.move_with_distance(-180,1.5)
+        chassis_ctrl.move_with_distance(-180,1.9)
         if not found:
             found = user_defined_Detect(r)
-        chassis_ctrl.move_with_distance(-180,1.5)
+        chassis_ctrl.move_with_distance(-180,1.9)
         if not found:
             found = user_defined_Detect(r)
         gimbal_ctrl.recenter()
@@ -79,33 +84,35 @@ def move(direction):
     else:
         #chassis_ctrl.move_with_distance(-90,2)
         gimbal_ctrl.yaw_ctrl(90)
-        chassis_ctrl.move_with_distance(0,1)
+        chassis_ctrl.move_with_distance(0,1.9)
         if not found:
             found = user_defined_Detect(r)
-        chassis_ctrl.move_with_distance(0,1.5)
+        chassis_ctrl.move_with_distance(0,1.9)
         if not found:
             found = user_defined_Detect(r)
         gimbal_ctrl.yaw_ctrl(180)
-        chassis_ctrl.move_with_distance(90,1)
+        chassis_ctrl.move_with_distance(90,1.35)
         if not found:
             found = user_defined_Detect(r)
-        chassis_ctrl.move_with_distance(90,1)
+        chassis_ctrl.move_with_distance(90,1.35)
         if not found:
             found = user_defined_Detect(r)
+        gimbal_ctrl.set_rotate_speed(250)
         gimbal_ctrl.yaw_ctrl(-90)
-        chassis_ctrl.move_with_distance(180,1)
+        chassis_ctrl.move_with_distance(180,1.9)
         if not found:
             found = user_defined_Detect(r)
-        chassis_ctrl.move_with_distance(180,1.5)
+        chassis_ctrl.move_with_distance(180,1.9)
         if not found:
             found = user_defined_Detect(r)
+        chassis_ctrl.move_with_distance(-90,2.7)
         gimbal_ctrl.recenter()
         
 def start():
     robot_ctrl.set_mode(rm_define.robot_mode_free)
-    if len(vmarker) > 1:
-        for count in range(5):   # 5 rounds for every game 
-            # at start of each round, robot will count down a from a random number between 1-5
+    for count in range(5):   # 5 rounds for every game 
+        # at start of each round, robot will count down a from a random number between 1-5
+        if len(vmarker) > 1:
             print("ROUND "+ str(count+1) + " START")
             rand = random.randint(1,5)
             for i in range(rand,0,-1):
@@ -120,15 +127,16 @@ def start():
             print("Direction: "+direction)
             move(direction)
             print("Vmarker size: "+str(len(vmarker)))
-    else:
-        conclusion()
+            time.sleep(10)
+        else:
+            conclusion()
     
 
 def conclusion():
-    # flashing lights
-    led_ctrl.set_bottom_led(rm_define.armor_bottom_all, 0, 127, 70, rm_define.effect_flash)
-    media_ctrl.play_sound(rm_define.media_sound_count_down)
-    time.sleep(2)
+    # flashing lights and loud sounds for 5s
+    led_ctrl.set_top_led(rm_define.armor_top_all, 255, 0, 0, rm_define.effect_flash)
+    media_ctrl.play_sound(rm_define.media_sound_recognize_success)
+    time.sleep(5)
     
 
 # NOTES:
