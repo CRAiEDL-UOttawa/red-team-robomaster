@@ -23,6 +23,8 @@ condmapper = {
     5:rm_define.cond_recognized_marker_number_five
 }
 
+picked = [1, 2, 3, 4, 5] # list of picked markers
+
 def user_defined_Detect(r):
     random_marker = vmarker.get(r) #3
     print(random_marker)
@@ -38,6 +40,8 @@ def user_defined_Detect(r):
         gun_ctrl.fire_once()
         # remove marker from list if detected
         vmarker.pop(r)
+        # remove r from picked
+        picked.remove(r)
         return True
     else:
         led_ctrl.set_top_led(rm_define.armor_top_all, 0, 255, 0, rm_define.effect_flash)
@@ -45,26 +49,26 @@ def user_defined_Detect(r):
     return False
         
 def move(direction):
-    r = random.randint(1,5)
+    r = random.choice(picked)
     found = False
-    if direction == "even":
-        chassis_ctrl.move_with_distance(90,2)
+    if direction == "anti":
+        chassis_ctrl.move_with_distance(90,2.5)
         gimbal_ctrl.yaw_ctrl(-90)
-        chassis_ctrl.move_with_distance(0,1)
+        chassis_ctrl.move_with_distance(0,1.5)
         if not found:
             found = user_defined_Detect(r)
         chassis_ctrl.move_with_distance(0,1.5)
         if not found:
             found = user_defined_Detect(r)
         gimbal_ctrl.yaw_ctrl(-180)
-        chassis_ctrl.move_with_distance(-90,1)
+        chassis_ctrl.move_with_distance(-90,1.5)
         if not found:
             found = user_defined_Detect(r)
-        chassis_ctrl.move_with_distance(-90,1)
+        chassis_ctrl.move_with_distance(-90,1.5)
         if not found:
             found = user_defined_Detect(r)
         gimbal_ctrl.yaw_ctrl(90) # at this point, the gimbal moves all around 
-        chassis_ctrl.move_with_distance(-180,1)
+        chassis_ctrl.move_with_distance(-180,1.5)
         if not found:
             found = user_defined_Detect(r)
         chassis_ctrl.move_with_distance(-180,1.5)
@@ -73,7 +77,7 @@ def move(direction):
         gimbal_ctrl.recenter()
     
     else:
-        chassis_ctrl.move_with_distance(-90,2)
+        #chassis_ctrl.move_with_distance(-90,2)
         gimbal_ctrl.yaw_ctrl(90)
         chassis_ctrl.move_with_distance(0,1)
         if not found:
@@ -102,6 +106,7 @@ def start():
     if len(vmarker) > 1:
         for count in range(5):   # 5 rounds for every game 
             # at start of each round, robot will count down a from a random number between 1-5
+            print("ROUND "+ str(count+1) + " START")
             rand = random.randint(1,5)
             for i in range(rand,0,-1):
                 media_ctrl.play_sound(rm_define.media_sound_count_down)
@@ -111,9 +116,10 @@ def start():
             
             #determining direction 
             randomd = random.randint(1,1000)
-            direction = "even" if random_number % 2 == 0 else "odd"
+            direction = "clockwise" if randomd % 2 == 0 else "anti"
+            print("Direction: "+direction)
             move(direction)
-            print(len(vmarker))
+            print("Vmarker size: "+str(len(vmarker)))
     else:
         conclusion()
     
