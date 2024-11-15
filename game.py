@@ -54,7 +54,7 @@ def user_defined_Detect(r):
 def move(direction):
     r = random.choice(picked)
     found = False
-    if direction == "anti":
+    if direction == "anticlockwise":
         chassis_ctrl.move_with_distance(90,2.7)
         gimbal_ctrl.yaw_ctrl(-90)
         chassis_ctrl.move_with_distance(0,1.9)
@@ -123,7 +123,7 @@ def start():
             
             #determining direction 
             randomd = random.randint(1,1000)
-            direction = "clockwise" if randomd % 2 == 0 else "anti"
+            direction = "clockwise" if randomd % 2 == 0 else "anticlockwise"
             print("Direction: "+direction)
             move(direction)
             print("Vmarker size: "+str(len(vmarker)))
@@ -136,13 +136,15 @@ def conclusion():
     # flashing lights and loud sounds for 5s
     led_ctrl.set_top_led(rm_define.armor_top_all, 255, 0, 0, rm_define.effect_flash)
     media_ctrl.play_sound(rm_define.media_sound_recognize_success)
+    media_ctrl.play_sound(rm_define.media_sound_recognize_success)
+    media_ctrl.play_sound(rm_define.media_sound_recognize_success)
     time.sleep(5)
     
 
 # NOTES:
-# 1. I can make a set list to store values from 1 to 5, pick a random value and remove it after picked.
-# 2. more work to be done on conclusion
-# 3. spin? at corner
+# 1. I can make a set list to store values from 1 to 5, pick a random value and remove it after picked. DONE LOL
+# 2. more work to be done on conclusion NOT DONE
+# 3. spin? at corner man f 
 # 4. for the scare factors, maybe adding more sounds and more menacing lights in each round 
 # 5. intro for sure 
 # 6. in blocks, add current chassis position
@@ -158,6 +160,7 @@ def conclusion():
 # 5. fix the spin at corner thing 
 # 6. programming how each individual wheel works and understand and explain 
 # 7. different movement parameters for each round probably (IMPORTANT)
+# 8. remove picked vs using vmarker
 #
 
         
