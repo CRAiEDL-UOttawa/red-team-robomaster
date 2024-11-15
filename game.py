@@ -164,3 +164,13 @@ def conclusion():
 #
 
         
+# POST PRES
+# 1. fix the movement issue 
+# 2. Maybe a function to center itself at some point or its know position 
+# 3. Is it possible to flip the follow mode on the fly? and then find the center 
+# 4. More features
+# 5. WHy on the floor lol 
+# 6. more robust edge cases and all 
+# 7. PID controller 
+# 8. test w people 
+# 9. Add more marquis LEDs, like loading LED when scanning
