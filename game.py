@@ -89,7 +89,7 @@ def user_defined_Detect(r):
         # change led to flash red
         set_led_color("red", "red", "flashing")
         vision_ctrl.detect_marker_and_aim(random_marker) 
-        media_ctrl.play_sound(rm_define.media_custom_audio_2,wait_for_complete_flag = True) # not human #TODO: idk why it takes so long 
+        #media_ctrl.play_sound(rm_define.media_custom_audio_2,wait_for_complete_flag = True) # not human #TODO: idk why it takes so long 
         gun_ctrl.fire_once()
         gun_ctrl.fire_once()
         gun_ctrl.fire_once()
@@ -156,11 +156,14 @@ def start():
     intro()
     time.sleep(3)
     robot_ctrl.set_mode(rm_define.robot_mode_free)
-    for count in range(8):   # 5 rounds for every game, 2 free rounds for possible errors 
+    for count in range(8):   # 5 rounds for every game, 3 free rounds for possible errors 
         # at start of each round, robot will count down a from a random number between 1-5
         if(len(vmarker) > 1):
             media_ctrl.play_sound(rm_define.media_custom_audio_3,wait_for_complete_flag = True) # shuffle cards audio
             print("ROUND "+ str(count+1) + " START")
+            
+            if count+1 == 3:
+                media_ctrl.play_sound(rm_define.media_custom_audio_8,wait_for_complete_flag = True) # space out audio 
             rand = random.randint(1,5)
             
             # have LED be a random color for each round, except for green and red, these are reserved for the game
@@ -183,6 +186,7 @@ def start():
             time.sleep(10)
         else:
             conclusion()
+            break
     
 
 # last person standing
@@ -212,8 +216,9 @@ def dance():
     gun_ctrl.fire_once()
     chassis_ctrl.set_trans_speed(1.5)
     chassis_ctrl.set_rotate_speed(180)
-    chassis_ctrl.move_with_time(0,0.5)
-    chassis_ctrl.move_and_rotate(90, rm_define.anticlockwise)
+    # chassis_ctrl.move_with_time(0,0.5)
+    chassis_ctrl.move_with_distance(0,1)
+    chassis_ctrl.move_and_rotate(45,rm_define.anticlockwise)
     time.sleep(1)
     
 # NOTES:
@@ -248,3 +253,6 @@ def dance():
 # 7. PID controller 
 # 8. test w people 
 # 9. Add more marquis LEDs, like loading LED when scanning
+
+
+# talk about: errors, how we fixed, including the 
