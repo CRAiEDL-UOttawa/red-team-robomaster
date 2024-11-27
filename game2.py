@@ -116,13 +116,12 @@ def user_defined_Detect(r):
 def move():
     global start_flag
     global spots
-    gimbal_ctrl.pitch_ctrl(25)
+    gimbal_ctrl.pitch_ctrl(25) # adjust pitch, ask contestants to put card up to robot's camera
     spots = [1, 2, 3, 4, 5]
     between = 0.95
     found = False
     n = len(spots)
-    r = random.choice(picked)
-    # pos = random.choice(spots)
+    r = random.choice(picked) # pick a random number from standing markers
     chassis_ctrl.set_trans_speed(1.5)
     if start_flag == "left":
         indices = range(n+1)
@@ -137,7 +136,7 @@ def move():
             else:
                 chassis_ctrl.move_with_distance(90, between)
     else:
-        indices = range(n,-1,-1)
+        indices = range(n,-1,-1) # reverse order to decrement
         for i in indices:
             if r in picked and spots[i-1] != None:
                 chassis_ctrl.move_with_distance(-90, between)
@@ -149,7 +148,7 @@ def move():
             else:
                 chassis_ctrl.move_with_distance(-90, between)
         
-def move_to_closest(position, start_flag):
+def move_to_closest(position, start_flag): # move to closest point end 
     if position == 1:
         chassis_ctrl.move_with_distance(-90, 0.95)
         start_flag = "left"
