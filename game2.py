@@ -18,11 +18,20 @@ condmapper = {
     5:rm_define.cond_recognized_marker_number_five
 }
 
-responses = {
-    
+# responses or actions each marker could do 
+# set a map to randomly assign one gesture for each person/marker
+# coin toss for it to shoot or not, but higher probability to shoot if action isnt completed
+# only one or two audio slots left, so we have one to clap and one to dance, dancing gets shot regardless
+# robot can randomly decide to check if a person needs to do an action or not
+actions = {
+    1: "please clap",
+    2: "dance"
 }
 
 picked = [1, 2, 3, 4, 5] # list of picked markers
+
+# pass audio
+# fail audio
 
 start_flag = "left"
 
@@ -73,8 +82,6 @@ def set_led_color(top_color, bottom_color, effect): # from blue team (thanks guy
         led_ctrl.set_top_led(rm_define.armor_top_all, top_rgb[0], top_rgb[1], top_rgb[2], effect_color)
         led_ctrl.set_bottom_led(rm_define.armor_bottom_all, bottom_rgb[0], bottom_rgb[1], bottom_rgb[2], effect_color)
 
-   
-
 def intro():
     # robot comes in 
     # robot says hi
@@ -93,7 +100,8 @@ def user_defined_Detect(r):
     vision_ctrl.set_marker_detection_distance(1.5)
     media_ctrl.play_sound(rm_define.media_sound_scanning, wait_for_complete=True)
     time.sleep(2)
-    if vision_ctrl.check_condition(condmapper.get(r)):
+    coin_toss = random.choice([True, False])
+    if vision_ctrl.check_condition(condmapper.get(r)) and coin_toss:
         # change led to flash red
         set_led_color("red", "red", "flashing")
         vision_ctrl.detect_marker_and_aim(random_marker) 
@@ -110,14 +118,13 @@ def user_defined_Detect(r):
     else:
         set_led_color("green", "green", "flashing")
         media_ctrl.play_sound(rm_define.media_sound_solmization_1C)
-        media_ctrl.play_sound(rm_define.media_custom_audio_0,wait_for_complete_flag = True) # safe audio
+        # media_ctrl.play_sound(rm_define.media_custom_audio_0,wait_for_complete_flag = True) # safe audio
     return False 
     
 def move():
     global start_flag
     global spots
-    gimbal_ctrl.pitch_ctrl(25) # adjust pitch, ask contestants to put card up to robot's camera
-    spots = [1, 2, 3, 4, 5]
+    # gimbal_ctrl.pitch_ctrl(25) # adjust pitch, ask contestants to put card up to robot's camera
     between = 0.95
     found = False
     n = len(spots)
@@ -128,25 +135,34 @@ def move():
         for i in indices:
             if r in picked and spots[i] != None: # if marker is still in list, and spot is not empty
                 chassis_ctrl.move_with_distance(90, between)
+                time.sleep(2)
                 found = user_defined_Detect(r)
                 if found:
                     start_flag = move_to_closest(spots[i], start_flag)
                     spots[i] = None # set spot to empty 
+                    print(spots)
+                    print(start_flag)
                     break  
             else:
                 chassis_ctrl.move_with_distance(90, between)
+                # invert the start flag if nothing is found 
+                start_flag = "right"
+            
     else:
         indices = range(n,-1,-1) # reverse order to decrement
         for i in indices:
             if r in picked and spots[i-1] != None:
                 chassis_ctrl.move_with_distance(-90, between)
+                time.sleep(2)
                 found = user_defined_Detect(r)
                 if found:
                     start_flag = move_to_closest(spots[i-1], start_flag)
                     spots[i-1] = None
+                    print(spots)
                     break
             else:
                 chassis_ctrl.move_with_distance(-90, between)
+                start_flag = "left"
         
 def move_to_closest(position, start_flag): # move to closest point end 
     if position == 1:
@@ -169,11 +185,11 @@ def move_to_closest(position, start_flag): # move to closest point end
         
     
 def start():
-    time.sleep(3)
-    intro()
-    time.sleep(3)
+    # time.sleep(3)
+    # # intro()
+    # time.sleep(3)
     robot_ctrl.set_mode(rm_define.robot_mode_free)
-    for count in range(8):   # 5 rounds for every game, 3 free rounds for possible errors 
+    for count in range(20):   # 5 rounds for every game, 3 free rounds for possible errors -> edited to 20 for new method 
         # at start of each round, robot will count down a from a random number between 1-5
         if(len(vmarker) > 1):
             media_ctrl.play_sound(rm_define.media_custom_audio_3,wait_for_complete_flag = True) # shuffle cards audio
@@ -199,7 +215,8 @@ def start():
             print("Vmarker size: "+str(len(vmarker)))
             time.sleep(10)
         else:
-            conclusion()
+            # move to last survivor
+            # conclusion()
             break
     
 
