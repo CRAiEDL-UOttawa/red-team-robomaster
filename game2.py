@@ -121,7 +121,7 @@ def user_defined_Detect(r):
 
         else:
             set_led_color("green", "green", "flashing")
-            media_ctrl.play_sound(rm_define.media_custom_audio_9,wait_for_complete_flag = True)
+            media_ctrl.play_sound(rm_define.media_sound_solmization_1C)
     else:
         set_led_color("green", "green", "flashing")
         media_ctrl.play_sound(rm_define.media_sound_solmization_1C)
