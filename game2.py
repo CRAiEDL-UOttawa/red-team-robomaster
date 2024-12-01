@@ -100,21 +100,28 @@ def user_defined_Detect(r):
     vision_ctrl.set_marker_detection_distance(1.5)
     media_ctrl.play_sound(rm_define.media_sound_scanning, wait_for_complete=True)
     time.sleep(2)
-    coin_toss = random.choice([True, False])
-    if vision_ctrl.check_condition(condmapper.get(r)) and coin_toss:
-        # change led to flash red
-        set_led_color("red", "red", "flashing")
-        vision_ctrl.detect_marker_and_aim(random_marker) 
-        #media_ctrl.play_sound(rm_define.media_custom_audio_2,wait_for_complete_flag = True) # not human #TODO: idk why it takes so long 
-        gun_ctrl.fire_once()
-        gun_ctrl.fire_once()
-        gun_ctrl.fire_once()
-        # remove marker from list if detected
-        vmarker.pop(r)
-        # remove r from picked
-        picked.remove(r)
-        time.sleep(2)
-        return True
+    coin_toss = random.choice([True, False, False, False, False]) # 20% chance of shooting
+    if vision_ctrl.check_condition(condmapper.get(r)):
+        
+        if not coin_toss: # if coin toss is false, proceed shooting as normal
+            action = random.choice(list(actions.values()))
+            # change led to flash red
+            set_led_color("red", "red", "flashing")
+            vision_ctrl.detect_marker_and_aim(random_marker) 
+            #media_ctrl.play_sound(rm_define.media_custom_audio_2,wait_for_complete_flag = True) # not human #TODO: idk why it takes so long 
+            gun_ctrl.fire_once()
+            gun_ctrl.fire_once()
+            gun_ctrl.fire_once()
+            # remove marker from list if detected
+            vmarker.pop(r)
+            # remove r from picked
+            picked.remove(r)
+            time.sleep(2)
+            return True
+
+        else:
+            set_led_color("green", "green", "flashing")
+            media_ctrl.play_sound(rm_define.media_custom_audio_9,wait_for_complete_flag = True)
     else:
         set_led_color("green", "green", "flashing")
         media_ctrl.play_sound(rm_define.media_sound_solmization_1C)
@@ -125,6 +132,7 @@ def move():
     global start_flag
     global spots
     # gimbal_ctrl.pitch_ctrl(25) # adjust pitch, ask contestants to put card up to robot's camera
+    gimbal_ctrl.yaw_ctrl(-90)
     between = 0.95
     found = False
     n = len(spots)
@@ -134,7 +142,7 @@ def move():
         indices = range(n+1)
         for i in indices:
             if r in picked and spots[i] != None: # if marker is still in list, and spot is not empty
-                chassis_ctrl.move_with_distance(90, between)
+                chassis_ctrl.move_with_distance(0, between)
                 time.sleep(2)
                 found = user_defined_Detect(r)
                 if found:
@@ -144,7 +152,7 @@ def move():
                     print(start_flag)
                     break  
             else:
-                chassis_ctrl.move_with_distance(90, between)
+                chassis_ctrl.move_with_distance(0, between)
                 # invert the start flag if nothing is found 
                 start_flag = "right"
             
@@ -152,7 +160,7 @@ def move():
         indices = range(n,-1,-1) # reverse order to decrement
         for i in indices:
             if r in picked and spots[i-1] != None:
-                chassis_ctrl.move_with_distance(-90, between)
+                chassis_ctrl.move_with_distance(180, between)
                 time.sleep(2)
                 found = user_defined_Detect(r)
                 if found:
@@ -161,24 +169,24 @@ def move():
                     print(spots)
                     break
             else:
-                chassis_ctrl.move_with_distance(-90, between)
+                chassis_ctrl.move_with_distance(180, between)
                 start_flag = "left"
         
 def move_to_closest(position, start_flag): # move to closest point end 
     if position == 1:
-        chassis_ctrl.move_with_distance(-90, 0.95)
+        chassis_ctrl.move_with_distance(180, 0.95)
         start_flag = "left"
     if position == 2:
-        chassis_ctrl.move_with_distance(-90, 1.9)
+        chassis_ctrl.move_with_distance(180, 1.9)
         start_flag = "left"
     if position == 3:
-        chassis_ctrl.move_with_distance(-90, 2.85)
+        chassis_ctrl.move_with_distance(180, 2.85)
         start_flag = "left"
     if position == 4:
-        chassis_ctrl.move_with_distance(90, 1.9)
+        chassis_ctrl.move_with_distance(0, 1.9)
         start_flag = "right"
     if position == 5:
-        chassis_ctrl.move_with_distance(90, 0.95)
+        chassis_ctrl.move_with_distance(0, 0.95)
         start_flag = "right"
     gimbal_ctrl.recenter()
     return start_flag
