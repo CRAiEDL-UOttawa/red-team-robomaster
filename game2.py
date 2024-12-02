@@ -24,8 +24,8 @@ condmapper = {
 # only one or two audio slots left, so we have one to clap and one to dance, dancing gets shot regardless
 # robot can randomly decide to check if a person needs to do an action or not
 actions = {
-    1: "please clap",
-    2: "dance"
+    1: media_ctrl.play_sound(rm_define.media_custom_audio_9,wait_for_complete_flag = True), # clap
+    2: media_ctrl.play_sound(rm_define.media_custom_audio_5,wait_for_complete_flag = True) # dance
 }
 
 picked = [1, 2, 3, 4, 5] # list of picked markers
@@ -100,32 +100,34 @@ def user_defined_Detect(r):
     vision_ctrl.set_marker_detection_distance(1.5)
     media_ctrl.play_sound(rm_define.media_sound_scanning, wait_for_complete=True)
     time.sleep(2)
-    coin_toss = random.choice([True, False, False, False, False]) # 20% chance of shooting
+    coin_toss = random.choice([False, True, True, True, False]) # 20% chance of shooting
     if vision_ctrl.check_condition(condmapper.get(r)):
-        
-        if not coin_toss: # if coin toss is false, proceed shooting as normal
             action = random.choice(list(actions.values()))
-            # change led to flash red
-            set_led_color("red", "red", "flashing")
-            vision_ctrl.detect_marker_and_aim(random_marker) 
-            #media_ctrl.play_sound(rm_define.media_custom_audio_2,wait_for_complete_flag = True) # not human #TODO: idk why it takes so long 
-            gun_ctrl.fire_once()
-            gun_ctrl.fire_once()
-            gun_ctrl.fire_once()
-            # remove marker from list if detected
-            vmarker.pop(r)
-            # remove r from picked
-            picked.remove(r)
-            time.sleep(2)
-            return True
-
-        else:
-            set_led_color("green", "green", "flashing")
-            media_ctrl.play_sound(rm_define.media_sound_solmization_1C)
+            action
+            if coin_toss:
+                time.sleep(4)
+                set_led_color("green", "green", "flashing")
+                media_ctrl.play_sound(rm_define.media_sound_solmization_1C)
+                media_ctrl.play_sound(rm_define.media_custom_audio_0,wait_for_complete_flag = True) # safe audio
+            else:
+                time.sleep(4)
+                # change led to flash red
+                set_led_color("red", "red", "flashing")
+                vision_ctrl.detect_marker_and_aim(random_marker) 
+                #media_ctrl.play_sound(rm_define.media_custom_audio_2,wait_for_complete_flag = True) # not human #TODO: idk why it takes so long 
+                gun_ctrl.fire_once()
+                gun_ctrl.fire_once()
+                gun_ctrl.fire_once()
+                # remove marker from list if detected
+                vmarker.pop(r)
+                # remove r from picked
+                picked.remove(r)
+                time.sleep(2)
+                return True
     else:
         set_led_color("green", "green", "flashing")
         media_ctrl.play_sound(rm_define.media_sound_solmization_1C)
-        # media_ctrl.play_sound(rm_define.media_custom_audio_0,wait_for_complete_flag = True) # safe audio
+        media_ctrl.play_sound(rm_define.media_custom_audio_0,wait_for_complete_flag = True) # safe audio
     return False 
     
 def move():
@@ -203,10 +205,6 @@ def start():
             media_ctrl.play_sound(rm_define.media_custom_audio_3,wait_for_complete_flag = True) # shuffle cards audio
             print("ROUND "+ str(count+1) + " START")
             
-            if count+1 == 3:
-                media_ctrl.play_sound(rm_define.media_custom_audio_8,wait_for_complete_flag = True) # space out audio 
-            rand = random.randint(1,5)
-            
             # have LED be a random color for each round, except for green and red, these are reserved for the game
             color = random.choice(list(RGB.keys()))
             while color == "red" or color == "green":
@@ -235,8 +233,8 @@ def start():
 # mid move, turn and shoot last perosn standing, and play a gamne over sound
 def conclusion():
     gimbal_ctrl.pitch_ctrl(35)
-    media_ctrl.play_sound(rm_define.media_custom_audio_7,wait_for_complete_flag = True) # please step forward 
-    media_ctrl.play_sound(rm_define.media_custom_audio_5,wait_for_complete_flag = True)
+    media_ctrl.play_sound(rm_define.media_custom_audio_4,wait_for_complete_flag = True) # please step forward 
+    media_ctrl.play_sound(rm_define.media_custom_audio_7,wait_for_complete_flag = True)
     time.sleep(5)
     # detect the last marker
     user_defined_Detect(picked[0])
@@ -249,7 +247,7 @@ def conclusion():
     dance()
     gimbal_ctrl.recenter()
     
-    media_ctrl.play_sound(rm_define.media_custom_audio_4,wait_for_complete=True) # hahaha
+    media_ctrl.play_sound(rm_define.media_custom_audio_8,wait_for_complete=True) # hahaha
     
 def dance(): 
     gun_ctrl.fire_once()
