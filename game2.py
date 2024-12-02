@@ -23,10 +23,7 @@ condmapper = {
 # coin toss for it to shoot or not, but higher probability to shoot if action isnt completed
 # only one or two audio slots left, so we have one to clap and one to dance, dancing gets shot regardless
 # robot can randomly decide to check if a person needs to do an action or not
-actions = {
-    1: media_ctrl.play_sound(rm_define.media_custom_audio_9,wait_for_complete_flag = True), # clap
-    2: media_ctrl.play_sound(rm_define.media_custom_audio_5,wait_for_complete_flag = True) # dance
-}
+actions = [rm_define.media_custom_audio_9, rm_define.media_custom_audio_5] 
 
 picked = [1, 2, 3, 4, 5] # list of picked markers
 
@@ -36,6 +33,8 @@ picked = [1, 2, 3, 4, 5] # list of picked markers
 start_flag = "left"
 
 spots = [1, 2, 3, 4, 5]
+
+safe_flag = True
 
 # Dictionary of RGB colors
 RGB = {
@@ -91,6 +90,7 @@ def intro():
     media_ctrl.play_sound(rm_define.media_custom_audio_1,wait_for_complete_flag = True)
 
 def user_defined_Detect(r):
+    global safe_flag
     media_ctrl.exposure_value_update(rm_define.exposure_value_medium)
     random_marker = vmarker.get(r) 
     print(random_marker)
@@ -100,21 +100,24 @@ def user_defined_Detect(r):
     vision_ctrl.set_marker_detection_distance(1.5)
     media_ctrl.play_sound(rm_define.media_sound_scanning, wait_for_complete=True)
     time.sleep(2)
-    coin_toss = random.choice([False, True, True, True, False]) # 20% chance of shooting
+    coin_toss = random.choice([False, True, True, False, False]) # 20% chance of shooting
     if vision_ctrl.check_condition(condmapper.get(r)):
-            action = random.choice(list(actions.values()))
-            action
+            action = random.choice(actions)
+            media_ctrl.play_sound(action)
+            time.sleep(5)
             if coin_toss:
                 time.sleep(4)
                 set_led_color("green", "green", "flashing")
                 media_ctrl.play_sound(rm_define.media_sound_solmization_1C)
                 media_ctrl.play_sound(rm_define.media_custom_audio_0,wait_for_complete_flag = True) # safe audio
+                safe_flag = True
+                return True 
             else:
                 time.sleep(4)
                 # change led to flash red
                 set_led_color("red", "red", "flashing")
                 vision_ctrl.detect_marker_and_aim(random_marker) 
-                #media_ctrl.play_sound(rm_define.media_custom_audio_2,wait_for_complete_flag = True) # not human #TODO: idk why it takes so long 
+                media_ctrl.play_sound(rm_define.media_custom_audio_2,wait_for_complete_flag = True) # not human #TODO: idk why it takes so long 
                 gun_ctrl.fire_once()
                 gun_ctrl.fire_once()
                 gun_ctrl.fire_once()
@@ -123,16 +126,19 @@ def user_defined_Detect(r):
                 # remove r from picked
                 picked.remove(r)
                 time.sleep(2)
+                safe_flag = False
                 return True
     else:
         set_led_color("green", "green", "flashing")
         media_ctrl.play_sound(rm_define.media_sound_solmization_1C)
         media_ctrl.play_sound(rm_define.media_custom_audio_0,wait_for_complete_flag = True) # safe audio
+        safe_flag = True
     return False 
     
 def move():
     global start_flag
     global spots
+    global safe_flag
     # gimbal_ctrl.pitch_ctrl(25) # adjust pitch, ask contestants to put card up to robot's camera
     gimbal_ctrl.yaw_ctrl(-90)
     between = 0.95
@@ -149,7 +155,10 @@ def move():
                 found = user_defined_Detect(r)
                 if found:
                     start_flag = move_to_closest(spots[i], start_flag)
-                    spots[i] = None # set spot to empty 
+                    if safe_flag:
+                        pass
+                    else:
+                        spots[i] = None # set spot to empty 
                     print(spots)
                     print(start_flag)
                     break  
@@ -167,7 +176,10 @@ def move():
                 found = user_defined_Detect(r)
                 if found:
                     start_flag = move_to_closest(spots[i-1], start_flag)
-                    spots[i-1] = None
+                    if safe_flag:
+                        pass
+                    else:
+                        spots[i-1] = None
                     print(spots)
                     break
             else:
@@ -204,6 +216,7 @@ def start():
         if(len(vmarker) > 1):
             media_ctrl.play_sound(rm_define.media_custom_audio_3,wait_for_complete_flag = True) # shuffle cards audio
             print("ROUND "+ str(count+1) + " START")
+            rand = random.randint(1,5)
             
             # have LED be a random color for each round, except for green and red, these are reserved for the game
             color = random.choice(list(RGB.keys()))
